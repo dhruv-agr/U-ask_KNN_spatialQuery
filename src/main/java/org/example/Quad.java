@@ -1,7 +1,11 @@
 package org.example;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 class Quad {
     Point topLeft;
@@ -119,7 +123,6 @@ class Quad {
 
     public void levelOrder(Quad root) {
 
-
         ArrayList<Quad> q = new ArrayList<Quad>();
         q.add(root);
         while (!q.isEmpty()) {
@@ -128,6 +131,11 @@ class Quad {
             int qsize = q.size();
             for (int i = 0; i < qsize; i++) {
                 Quad tree = q.remove(0);
+
+                if(tree.nodearr.size() !=0){
+                    createHashMap(tree);
+                }
+
                 same_level.add(tree);
 
                 if (tree.topLeftTree != null) {
@@ -204,6 +212,23 @@ class Quad {
 
     }
 
+    public void createHashMap(Quad tree){
+        ConcurrentHashMap<Integer,Point> hashMap = new ConcurrentHashMap<>();
+
+        for(Node node : tree.nodearr){
+            hashMap.put(node.getId(),node.getPos());
+        }
+        String filename = "C:\\Users\\dhruv\\Projects\\SpatialProject\\U-ask_KNN_spatialQuery\\Test\\Data\\output\\" +tree.name +".txt";
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+            for (Map.Entry<Integer, Point> entry : hashMap.entrySet()) {
+                writer.write(entry.getKey() + ":" + entry.getValue());
+                writer.newLine();
+            }
+            System.out.println("ConcurrentHashMap saved to " + filename);
+        } catch (IOException e) {
+            System.err.println("Error writing to file: " + e.getMessage());
+        }
+    }
 
     @Override
     public String toString() {

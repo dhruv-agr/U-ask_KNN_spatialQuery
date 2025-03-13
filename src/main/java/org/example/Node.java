@@ -11,28 +11,28 @@ class Node {
         this.pos = pos;
     }
 
-    public int getData() {
-        return data;
+    public int getId() {
+        return id;
     }
 
-    public void setData(int data) {
-        this.data = data;
+    public void setId(int id) {
+        this.id = id;
     }
 
-    int data;
+    int id;
 
     Node(Point _pos, int _data) {
         pos = _pos;
-        data = _data;
+        id = _data;
     }
 
     Node() {
-        data = 0;
+        id = 0;
     }
 
     @Override
     public String toString() {
-        String res = getPos() + " " + getData();
+        String res = getPos() + " " + getId();
         return res;
     }
 }

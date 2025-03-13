@@ -2,9 +2,9 @@ package org.example;
 
 class Point {
 
-    int x, y;
+    double x, y;
 
-    Point(int _x, int _y) {
+    Point(double _x, double _y) {
         x = _x;
         y = _y;
     }
@@ -14,19 +14,19 @@ class Point {
         y = 0;
     }
 
-    public int getX() {
+    public double getX() {
         return x;
     }
 
-    public void setX(int x) {
+    public void setX(double x) {
         this.x = x;
     }
 
-    public int getY() {
+    public double getY() {
         return y;
     }
 
-    public void setY(int y) {
+    public void setY(double y) {
         this.y = y;
     }
 
