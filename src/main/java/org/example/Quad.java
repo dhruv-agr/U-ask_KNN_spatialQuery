@@ -22,6 +22,7 @@ class Quad {
     String name;
     String ltp;
     ConcurrentHashMap<Integer,String> oti = new ConcurrentHashMap<>();
+    ConcurrentHashMap<String, Quadruple> iti= new ConcurrentHashMap<>();
 
     // Default constructor
     public Quad() {

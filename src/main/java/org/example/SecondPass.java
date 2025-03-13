@@ -2,11 +2,21 @@ package org.example;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SecondPass {
+
+    ArrayList<IdWeightPair> idWeightPairs;
+    HashSet<Integer> objIdSet;
+    ConcurrentHashMap<String,ArrayList<IdWeightPair>> invList = new ConcurrentHashMap<>();
+    ConcurrentHashMap<String, HashSet<Integer>> invSet = new ConcurrentHashMap<>();
+
+    double wmax = Double.MIN_VALUE;
+    int wsize = 0;
+
     public void createIndex(){
         String filePath = "C:\\Users\\dhruv\\Projects\\SpatialProject\\U-ask_KNN_spatialQuery\\Test\\Data\\data1.txt";
         double x ;
@@ -46,7 +56,7 @@ public class SecondPass {
                 Quad tree = q.remove(0);
 
                 if(tree!=null && tree.nodearr.size() !=0){
-                    createidToinv(tree);
+//                    createidToinv(tree);
 
                 }
 
@@ -73,15 +83,15 @@ public class SecondPass {
 
     }
 
-    public void createidToinv(Quad tree){
-        ArrayList<String> invList = new ArrayList<>();
-        ConcurrentHashMap<Integer,ArrayList<String>> hashMap = new ConcurrentHashMap<>();
-
-        for(Node node : tree.nodearr){
-            hashMap.put(node.getId(),invList);
-        }
-
-    }
+//    public void createidToinv(Quad tree){
+//        ArrayList<String> invList = new ArrayList<>();
+//        ConcurrentHashMap<Integer,ArrayList<String>> hashMap = new ConcurrentHashMap<>();
+//
+//        for(Node node : tree.nodearr){
+//            hashMap.put(node.getId(),invList);
+//        }
+//
+//    }
 
     // object textual index
     public void createOti(Quad tree){
@@ -99,7 +109,11 @@ public class SecondPass {
             List<String> lastWordsList = new ArrayList<>();
             Node node = new Node();
             while ((line = reader.readLine()) != null) {
+
+
+
                 String lastWords = extractLastWords(line);
+
 
                 String[] values = line.split(" ");
                 if (values.length >= 3) {
@@ -111,10 +125,21 @@ public class SecondPass {
 
                 }
                 if (tree !=null && lastWords != null && !lastWords.isEmpty()) {
+                    // creating empty idToInv as we read each object from original dataset
+//                    wordWeightPairs = new ArrayList<>();
+//                    this.idToInv.put(node.getId(),wordWeightPairs);
+
                     insertIntoOti(tree, node,lastWords);
+
                 }
 
             }
+
+            System.out.println("inv list: " + this.invList);
+            System.out.println("inv set: " + this.invSet);
+
+
+
 
             // Print or process the extracted last words
             for (String words : lastWordsList) {
@@ -134,6 +159,9 @@ public class SecondPass {
                 if(n.getId() == node.getId()){
                     String filename = root.oti.get(node.getId());
                     writeToFile(filename, node.getId(), text);
+                    buildInvertedIndex(node.getId(),text);
+//                    root.iti.get()
+//                    wsize = this.invList.size();
                     return;
                 }
             }
@@ -184,6 +212,62 @@ public class SecondPass {
         }
     }
 
+    public void buildInvertedIndex(int id, String words){
+
+        String[] wordsArr = words.split("\\s+");;
+        HashSet<String> processedValues = new HashSet<>();
+        for(String word: wordsArr){
+            if (!processedValues.contains(word)) {
+                double weight = calculateWeight(word, wordsArr);
+                IdWeightPair idWpair = new IdWeightPair(id, weight);
+
+                if (this.invList.containsKey(word)) {
+                    System.out.println("key present: " + word);
+                    this.invList.get(word).add(idWpair);
+
+                } else {
+                    idWeightPairs = new ArrayList<>();
+                    idWeightPairs.add(idWpair);
+                    this.invList.put(word, idWeightPairs);
+                }
+
+                if(!this.invSet.containsKey(word)){
+                    objIdSet = new HashSet<>();
+                    objIdSet.add(id);
+                    this.invSet.put(word,objIdSet);
+                }
+                processedValues.add(word);
+            }
+        }
+
+
+    }
+
+    public double calculateWeight(String word, String[] wordsArr){
+        int count = 0;
+        if (wordsArr != null) {
+            for (String element : wordsArr) {
+                if (word.equals(element)) {
+                    count++;
+                }
+            }
+        }
+        double weight = 0.0;
+        weight = (double) count /wordsArr.length;
+        return weight;
+    }
+
+    public double findMax(ConcurrentHashMap<String,ArrayList<IdWeightPair>>  invlist){
+        double wmax=Double.MIN_VALUE;
+        for(ArrayList<IdWeightPair> idWeightPairs1 : invList.values()) {
+            for(IdWeightPair idp: idWeightPairs1){
+                if(idp.getWeight()>wmax){
+                    wmax = idp.getWeight();
+                }
+            }
+        }
+        return wmax;
+    }
     public String extractLastWords(String line) {
         if (line == null || line.trim().isEmpty()) {
             return null;
