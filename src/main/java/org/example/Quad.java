@@ -7,12 +7,14 @@ class Quad {
     Point topLeft;
     Point botRight;
     ArrayList<Node> nodearr = new ArrayList<Node>();
+    ArrayList<Quad> neigh = new ArrayList<>();
 
     Quad topLeftTree;
     Quad topRightTree;
     Quad botLeftTree;
     Quad botRightTree;
     int capacity;
+    String name;
 
     // Default constructor
     public Quad() {
@@ -35,6 +37,7 @@ class Quad {
         botRightTree = null;
         topLeft = topL;
         botRight = botR;
+        name ="";
     }
 
     void insert(Quad root, Node node) {
@@ -66,20 +69,19 @@ class Quad {
         root.insert(root, newNode);
     }
 
+
     public void levelOrder(Quad root) {
-//        List<List<List<Node>>> res = new ArrayList<ArrayList<ArrayList<Node>>>();
-//        if(root==null){
-//            return res;
-//        }
+
 
         ArrayList<Quad> q = new ArrayList<Quad>();
         q.add(root);
         while (!q.isEmpty()) {
-            List<ArrayList<Node>> same_level = new ArrayList<ArrayList<Node>>();
+
+            ArrayList<Quad> same_level = new ArrayList<>();
             int qsize = q.size();
             for (int i = 0; i < qsize; i++) {
                 Quad tree = q.remove(0);
-                same_level.add(tree.nodearr);
+                same_level.add(tree);
 
                 if (tree.topLeftTree != null) {
                     q.add(tree.topLeftTree);
@@ -96,10 +98,7 @@ class Quad {
                 }
 
             }
-//            res.add(same_level);
-//            for(int i=0;i<same_level.size();i++){
-//                System.out.print(same_level.get(i).toString());
-//            }
+
             System.out.println(same_level.toString());
         }
 //        return res;
@@ -116,6 +115,14 @@ class Quad {
                             new Point(root.topLeft.x, root.topLeft.y),
                             new Point((root.topLeft.x + root.botRight.x) / 2, (root.topLeft.y + root.botRight.y) / 2));
                     root.topLeftTree.nodearr.add(node);
+                    root.topLeftTree.name = root.name + "-TL";
+
+                    // add and modify neighbours
+                    root.topLeftTree.neigh.add(root.topRightTree);
+                    root.topLeftTree.neigh.add(root.botRightTree);
+                    root.topLeftTree.neigh.add(root.botLeftTree);
+
+                    addNeighboursFromParent(root, root.topLeftTree);
                 } else {
                     insert(root.topLeftTree, node);
                 }
@@ -126,6 +133,15 @@ class Quad {
                             new Point(root.topLeft.x, (root.topLeft.y + root.botRight.y) / 2),
                             new Point((root.topLeft.x + root.botRight.x) / 2, root.botRight.y));
                     root.botLeftTree.nodearr.add(node);
+                    root.botLeftTree.name = root.name + "-BL";
+
+                    // add and modify neighbours
+                    root.botLeftTree.neigh.add(root.topLeftTree);
+                    root.botLeftTree.neigh.add(root.topRightTree);
+                    root.botLeftTree.neigh.add(root.botRightTree);
+
+                    addNeighboursFromParent(root, root.botLeftTree);
+
                 } else {
                     insert(root.botLeftTree, node);
                 }
@@ -139,6 +155,14 @@ class Quad {
                             new Point((root.topLeft.x + root.botRight.x) / 2, root.topLeft.y),
                             new Point(root.botRight.x, (root.topLeft.y + root.botRight.y) / 2));
                     root.topRightTree.nodearr.add(node);
+                    root.topRightTree.name = root.name + "-TR";
+
+                    // add and modify neighbours
+                    root.topRightTree.neigh.add(root.topLeftTree);
+                    root.topRightTree.neigh.add(root.botLeftTree);
+                    root.topRightTree.neigh.add(root.botRightTree);
+                    addNeighboursFromParent(root, root.topRightTree);
+
                 } else {
                     insert(root.topRightTree, node);
                 }
@@ -149,11 +173,47 @@ class Quad {
                             new Point((root.topLeft.x + root.botRight.x) / 2, (root.topLeft.y + root.botRight.y) / 2),
                             new Point(root.botRight.x, root.botRight.y));
                     root.botRightTree.nodearr.add(node);
+                    root.botRightTree.name = root.name + "-BR";
+
+                    // add and modify neighbours
+                    root.botRightTree.neigh.add(root.topLeftTree);
+                    root.botRightTree.neigh.add(root.botLeftTree);
+                    root.botRightTree.neigh.add(root.topRightTree);
+                    addNeighboursFromParent(root, root.botRightTree);
+
                 } else {
                     insert(root.botRightTree, node);
                 }
             }
         }
+    }
+
+    public void addNeighboursFromParent(Quad parent, Quad child){
+
+        for(Quad q : parent.neigh){
+            // horizontal, vertical and diagonal adjacency
+            if(q !=null){
+                if( ((q.botRight.x == child.topLeft.x || q.topLeft.x == child.botRight.x) && ((q.botRight.y <= child.topLeft.y) && (q.topLeft.y >= child.botRight.y)))
+                        || ((q.topLeft.y==child.botRight.y || q.botRight.y == child.topLeft.y) && ((q.topLeft.x <= child.botRight.x) && (q.botRight.x>=child.topLeft.x)))
+                        || ((q.botRight.x == child.topLeft.x && q.topLeft.y == child.botRight.y)
+                        || (q.topLeft.x == child.botRight.x && q.topLeft.y == child.botRight.y)
+                        || (q.botRight.x == child.topLeft.x && q.botRight.y == child.topLeft.y)
+                        || (q.topLeft.x == child.botRight.x && q.botRight.y == child.topLeft.y))
+                ){
+                    child.neigh.add(q);
+                }
+            }
+
+
+        }
+
+    }
+
+
+    @Override
+    public String toString() {
+        String res = this.name + " Nodes:" + this.nodearr + " Neigh:" + this.neigh;
+        return res;
     }
 }
 
