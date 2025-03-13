@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,6 +20,8 @@ class Quad {
     Quad botRightTree;
     int capacity;
     String name;
+    String ltp;
+    ConcurrentHashMap<Integer,String> oti = new ConcurrentHashMap<>();
 
     // Default constructor
     public Quad() {
@@ -48,6 +51,7 @@ class Quad {
         if (root.nodearr.size() < 4 && root.topLeftTree == null && root.topRightTree == null
                 && root.botLeftTree == null && root.botRightTree == null) {
             root.nodearr.add(node);
+            root.oti.put(node.getId(), "C:\\Users\\dhruv\\Projects\\SpatialProject\\U-ask_KNN_spatialQuery\\Test\\Data\\output\\oti\\" +root.name + "nodetxt.txt");
         } else if (root.nodearr.size() == 4 && root.topLeftTree == null && root.topRightTree == null
                 && root.botLeftTree == null && root.botRightTree == null) {
             // curr node is full and no children so split
@@ -221,10 +225,11 @@ class Quad {
         String filename = "C:\\Users\\dhruv\\Projects\\SpatialProject\\U-ask_KNN_spatialQuery\\Test\\Data\\output\\" +tree.name +".txt";
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
             for (Map.Entry<Integer, Point> entry : hashMap.entrySet()) {
-                writer.write(entry.getKey() + ":" + entry.getValue());
+                writer.write(entry.getKey() + " " + entry.getValue());
                 writer.newLine();
             }
             System.out.println("ConcurrentHashMap saved to " + filename);
+            tree.ltp = filename;
         } catch (IOException e) {
             System.err.println("Error writing to file: " + e.getMessage());
         }
