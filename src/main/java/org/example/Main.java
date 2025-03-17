@@ -4,6 +4,8 @@ package org.example;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.List;
+import java.util.Set;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
@@ -81,6 +83,20 @@ public class Main {
 //        System.out.print("x: " + x);
 //        System.out.print(" y: " + y);
 
+//        POWER processor = new POWER(index, 8);
+//
+//        // Example query from paper
+//        Set<String> posKeywords = Set.of("beauty");
+//        Set<String> negPhrases = Set.of("blah");
+//        List<Node> results = processor.executeTKQN(
+//                33.81271974, -117.91897705, posKeywords, negPhrases, 10, 0.5
+//        );
+//
+//        System.out.println("Top Results:");
+//        results.forEach(obj -> System.out.printf(
+//                "[ID: %s] Distance: %.2fm | Text: %s%n",
+//                obj.getId(), obj.distanceTo(34.05, -118.24), obj.getText()
+//        ));
 
         }
 

@@ -1,4 +1,4 @@
-package org.example;
+package org.example.dataTypes;
 
 public class IdWeightPair {
     int id;

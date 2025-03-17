@@ -1,18 +1,15 @@
 package org.example;
 
+import org.example.dataTypes.IdWeightPair;
+import org.example.dataTypes.SearchResult;
+
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SecondPass {
 
-    ArrayList<IdWeightPair> idWeightPairs;
-    HashSet<Integer> objIdSet;
-    ConcurrentHashMap<String,ArrayList<IdWeightPair>> invList = new ConcurrentHashMap<>();
-    ConcurrentHashMap<String, HashSet<Integer>> invSet = new ConcurrentHashMap<>();
+
 
     double wmax = Double.MIN_VALUE;
     int wsize = 0;
@@ -135,8 +132,8 @@ public class SecondPass {
 
             }
 
-            System.out.println("inv list: " + this.invList);
-            System.out.println("inv set: " + this.invSet);
+//            System.out.println("inv list: " + this.invList);
+//            System.out.println("inv set: " + this.invSet);
 
 
 
@@ -153,57 +150,26 @@ public class SecondPass {
     }
 
     public void insertIntoOti(Quad root, Node node, String text){
+        ArrayList<IdWeightPair> idWeightPairs = new ArrayList<>();
+        HashSet<Integer> objIdSet = new HashSet<>();
+        ConcurrentHashMap<String,ArrayList<IdWeightPair>> invList = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, HashSet<Integer>> invSet = new ConcurrentHashMap<>();
 
-        if(!root.nodearr.isEmpty()){
-            for(Node n : root.nodearr){
-                if(n.getId() == node.getId()){
-                    String filename = root.oti.get(node.getId());
-                    writeToFile(filename, node.getId(), text);
-                    buildInvertedIndex(node.getId(),text);
-//                    root.iti.get()
-//                    wsize = this.invList.size();
-                    return;
-                }
-            }
-        }
 
-        // left quadrants
-        if ((root.topLeft.x + root.botRight.x) / 2 >= node.pos.x) {
-            if ((root.topLeft.y + root.botRight.y) / 2 >= node.pos.y) {
-                // Indicates topLeftTree
+        SearchResult sr = root.searchObject(root, node);
+        String filename = sr.getTree().oti.get(sr.getObjectId());
+        writeToFile(filename, sr.getObjectId(), text);
 
-                insertIntoOti(root.topLeftTree, node,text);
-
-            } else {
-                // Indicates botLeftTree
-
-                insertIntoOti(root.botLeftTree, node, text);
-
-            }
-            // right quadrants
-        } else {
-            if ((root.topLeft.y + root.botRight.y) / 2 >= node.pos.y) {
-                // Indicates topRightTree
-
-                insertIntoOti(root.topRightTree, node, text);
-
-            } else {
-                // Indicates botRightTree
-
-                insertIntoOti(root.botRightTree, node, text);
-
-            }
-        }
     }
 
     public void writeToFile(String filename,int id, String data){
-        String filePath = filename; // Replace with your file path
-        String textToAppend = data; // The text to add
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
+
+        System.out.println("file path is: " + filename);
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true))) {
             // The 'true' argument in FileWriter's constructor enables append mode.
             writer.newLine();
-            writer.write(id + " " + textToAppend);
+            writer.write(id + " " + data);
             System.out.println("Text appended successfully.");
 
         } catch (IOException e) {
@@ -212,29 +178,37 @@ public class SecondPass {
         }
     }
 
-    public void buildInvertedIndex(int id, String words){
+    public void buildInvertedIndex(Quad root, int id, String words, ConcurrentHashMap<String,ArrayList<IdWeightPair>> invList, ConcurrentHashMap<String, HashSet<Integer>> invSet, ArrayList<IdWeightPair> idWeightPairs, HashSet<Integer> objIdSet){
 
-        String[] wordsArr = words.split("\\s+");;
+
+        String[] wordsArr = words.split("\\s+");
         HashSet<String> processedValues = new HashSet<>();
         for(String word: wordsArr){
             if (!processedValues.contains(word)) {
                 double weight = calculateWeight(word, wordsArr);
                 IdWeightPair idWpair = new IdWeightPair(id, weight);
 
-                if (this.invList.containsKey(word)) {
+                if (invList.containsKey(word)) {
                     System.out.println("key present: " + word);
-                    this.invList.get(word).add(idWpair);
+                    invList.get(word).add(idWpair);
 
                 } else {
                     idWeightPairs = new ArrayList<>();
                     idWeightPairs.add(idWpair);
-                    this.invList.put(word, idWeightPairs);
+                    invList.put(word, idWeightPairs);
                 }
 
-                if(!this.invSet.containsKey(word)){
+                Quadruple tuple = new Quadruple();
+
+                Optional<IdWeightPair> opt = invList.get(word).stream().max(Comparator.comparingDouble(IdWeightPair::getWeight));
+
+                tuple.setWmax(opt.get().getWeight());
+                tuple.setWsize(invList.get(word).size());
+
+                if(!invSet.containsKey(word)){
                     objIdSet = new HashSet<>();
                     objIdSet.add(id);
-                    this.invSet.put(word,objIdSet);
+                    invSet.put(word,objIdSet);
                 }
                 processedValues.add(word);
             }
@@ -257,17 +231,17 @@ public class SecondPass {
         return weight;
     }
 
-    public double findMax(ConcurrentHashMap<String,ArrayList<IdWeightPair>>  invlist){
-        double wmax=Double.MIN_VALUE;
-        for(ArrayList<IdWeightPair> idWeightPairs1 : invList.values()) {
-            for(IdWeightPair idp: idWeightPairs1){
-                if(idp.getWeight()>wmax){
-                    wmax = idp.getWeight();
-                }
-            }
-        }
-        return wmax;
-    }
+//    public double findMax(ConcurrentHashMap<String,ArrayList<IdWeightPair>>  invlist){
+//        double wmax=Double.MIN_VALUE;
+//        for(ArrayList<IdWeightPair> idWeightPairs1 : invList.values()) {
+//            for(IdWeightPair idp: idWeightPairs1){
+//                if(idp.getWeight()>wmax){
+//                    wmax = idp.getWeight();
+//                }
+//            }
+//        }
+//        return wmax;
+//    }
     public String extractLastWords(String line) {
         if (line == null || line.trim().isEmpty()) {
             return null;

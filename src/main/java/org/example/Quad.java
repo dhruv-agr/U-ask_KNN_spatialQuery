@@ -1,5 +1,8 @@
 package org.example;
 
+
+import org.example.dataTypes.SearchResult;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -8,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-class Quad {
+public class Quad {
     Point topLeft;
     Point botRight;
     ArrayList<Node> nodearr = new ArrayList<Node>();
@@ -123,6 +126,51 @@ class Quad {
 
         // add new node
         root.insert(root, newNode);
+    }
+
+    public SearchResult searchObject(Quad root, Node node){
+        if(!root.nodearr.isEmpty()){
+            for(Node n : root.nodearr){
+
+                // found the cell in which object is present
+                if(n.getId() == node.getId()){
+                    System.out.println("cell found: " + root.name);
+                    SearchResult sr = new SearchResult(root, n.getId());
+                    System.out.println("cell found name from sr: " + sr.getTree().name);
+
+                    return sr;
+                }
+            }
+        }
+
+        // left quadrants
+        if ((root.topLeft.x + root.botRight.x) / 2 >= node.pos.x) {
+            if ((root.topLeft.y + root.botRight.y) / 2 >= node.pos.y) {
+                // Indicates topLeftTree
+
+                return searchObject(root.topLeftTree, node);
+
+            } else {
+                // Indicates botLeftTree
+
+                return searchObject(root.botLeftTree, node);
+
+            }
+            // right quadrants
+        } else {
+            if ((root.topLeft.y + root.botRight.y) / 2 >= node.pos.y) {
+                // Indicates topRightTree
+
+                return searchObject(root.topRightTree, node);
+
+            } else {
+                // Indicates botRightTree
+
+                return searchObject(root.botRightTree, node);
+
+            }
+        }
+
     }
 
 

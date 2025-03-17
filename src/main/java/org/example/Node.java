@@ -1,6 +1,6 @@
 package org.example;
 
-class Node {
+public class Node {
     Point pos;
 
     public Point getPos() {
