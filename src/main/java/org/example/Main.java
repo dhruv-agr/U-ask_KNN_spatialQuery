@@ -79,6 +79,7 @@ public class Main {
 
         SecondPass sp = new SecondPass();
         sp.createOti(root);
+        sp.buildInvertedIndex(root);
 //        System.out.println("id: " + id);
 //        System.out.print("x: " + x);
 //        System.out.print(" y: " + y);

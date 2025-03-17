@@ -55,7 +55,7 @@ public class Quad {
         if (root.nodearr.size() < 4 && root.topLeftTree == null && root.topRightTree == null
                 && root.botLeftTree == null && root.botRightTree == null) {
             root.nodearr.add(node);
-            root.oti.put(node.getId(), "C:\\Users\\dhruv\\Projects\\SpatialProject\\U-ask_KNN_spatialQuery\\Test\\Data\\output\\oti\\" +root.name + "nodetxt.txt");
+            root.oti.put(node.getId(), "C:\\Users\\dhruv\\Projects\\SpatialProject\\U-ask_KNN_spatialQuery\\Test\\Data\\output\\oti\\" +root.name + "node-txt.txt");
         } else if (root.nodearr.size() == 4 && root.topLeftTree == null && root.topRightTree == null
                 && root.botLeftTree == null && root.botRightTree == null) {
             // curr node is full and no children so split
@@ -134,9 +134,9 @@ public class Quad {
 
                 // found the cell in which object is present
                 if(n.getId() == node.getId()){
-                    System.out.println("cell found: " + root.name);
+//                    System.out.println("cell found: " + root.name);
                     SearchResult sr = new SearchResult(root, n.getId());
-                    System.out.println("cell found name from sr: " + sr.getTree().name);
+//                    System.out.println("cell found name from sr: " + sr.getTree().name);
 
                     return sr;
                 }
